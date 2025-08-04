@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Smart Attendance System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h2>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary">
+            <div class="card-body text-center">
+                <h3><i class="fas fa-users"></i></h3>
+                <h4>{{ total_faculty }}</h4>
+                <p class="mb-0">Total Faculty</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-success">
+            <div class="card-body text-center">
+                <h3><i class="fas fa-check-circle"></i></h3>
+                <h4>{{ today_attendance }}</h4>
+                <p class="mb-0">Today's Attendance</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-info">
+            <div class="card-body text-center">
+                <h3><i class="fas fa-percentage"></i></h3>
+                <h4>{{ ((today_attendance / total_faculty * 100) if total_faculty > 0 else 0) | round(1) }}%</h4>
+                <p class="mb-0">Attendance Rate</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-cogs me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('register_faculty') }}" class="btn btn-primary w-100">
+                            <i class="fas fa-user-plus me-2"></i>Register Faculty
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('generate_qr') }}" class="btn btn-secondary w-100">
+                            <i class="fas fa-qrcode me-2"></i>Generate QR Codes
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('send_email') }}" class="btn btn-info w-100">
+                            <i class="fas fa-envelope me-2"></i>Send Report Email
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <button class="btn btn-warning w-100" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Print Report
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('download_app') }}" class="btn btn-success w-100">
+                            <i class="fas fa-download me-2"></i>Download App
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Attendance -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-clock me-2"></i>Today's Attendance</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_attendances %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Faculty Name</th>
+                                <th>Username</th>
+                                <th>Department</th>
+                                <th>Scan Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attendance, user in recent_attendances %}
+                            <tr>
+                                <td>{{ user.full_name or user.username }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.department or 'N/A' }}</td>
+                                <td>{{ attendance.scan_time.strftime('%I:%M %p') }} IST</td>
+                                <td>
+                                    <span class="badge bg-success">Present</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted">
+                    <i class="fas fa-info-circle fa-3x mb-3"></i>
+                    <p>No attendance records for today yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

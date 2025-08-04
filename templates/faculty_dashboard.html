@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Faculty Dashboard - Smart Attendance System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-user-graduate me-2"></i>Faculty Dashboard</h2>
+        <p class="text-muted">Welcome, {{ user.full_name or user.username }}!</p>
+    </div>
+</div>
+
+<!-- Status Card -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-calendar-day me-2"></i>Today's Attendance Status</h5>
+            </div>
+            <div class="card-body">
+                {% if today_attendance %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Attendance Marked!</strong> 
+                        You marked your attendance at {{ today_attendance.scan_time.strftime('%I:%M %p') }}
+                    </div>
+                {% else %}
+                    {% if can_mark_attendance %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-clock me-2"></i>
+                            <strong>Attendance Window Open!</strong> 
+                            You can mark your attendance now (until 9:45 AM IST)
+                        </div>
+                    {% else %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-times-circle me-2"></i>
+                            <strong>Attendance Not Marked!</strong> 
+                            {% if current_time.hour < 9 or (current_time.hour == 9 and current_time.minute < 30) %}
+                                Attendance window opens at 9:30 AM IST
+                            {% else %}
+                                Attendance window has closed (9:45 AM IST)
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-info-circle me-2"></i>Information</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>Department:</strong> {{ user.department or 'N/A' }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Current Time (IST):</strong> {{ current_time.strftime('%I:%M %p') }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Scanner Section -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-qrcode me-2"></i>Mark Attendance</h5>
+            </div>
+            <div class="card-body">
+                {% if can_mark_attendance %}
+                    <div class="text-center">
+                        <p class="mb-3">Scan the QR code displayed in your department to mark attendance.</p>
+                        <a href="{{ url_for('scan_qr') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-camera me-2"></i>Scan QR Code
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-lock fa-3x mb-3"></i>
+                        {% if today_attendance %}
+                            <p>You have already marked your attendance for today.</p>
+                        {% else %}
+                            <p>Attendance can only be marked between 9:30 AM and 9:35 AM.</p>
+                            <p>Please return during the attendance window.</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Instructions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-question-circle me-2"></i>Instructions</h6>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>Attendance window is open from <strong>9:30 AM to 9:45 AM IST</strong> daily.</li>
+                    <li>Scan the QR code displayed in your department during this time.</li>
+                    <li>You can only mark attendance once per day.</li>
+                    <li>Attendance reports are automatically sent to administrators at 9:45 AM IST.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
